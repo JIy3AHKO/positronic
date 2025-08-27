@@ -99,3 +99,34 @@ class StateEncoder:
             "names": self.state,
         }
         return features
+
+
+class Pi0StateEncoder(StateEncoder):
+    def __init__(self):
+        pass
+
+    def encode_episode(self, episode_data):
+        raise NotImplementedError("Pi0StateEncoder does not support encode_episode")
+
+    def encode(self, images, inputs):
+        from openpi_client import image_tools
+
+        wrist_img = image_tools.convert_to_uint8(
+            image_tools.resize_with_pad(images["handcam_left.image"], 224, 224)
+        )
+
+        back_img = image_tools.convert_to_uint8(
+            image_tools.resize_with_pad(images["back_view.image"], 224, 224)
+        )
+
+        element = {
+            "observation/image": back_img,
+            "observation/wrist_image": wrist_img,
+            "observation/state": inputs["robot_joints"],
+            "prompt": "pick up the green cube and put in on top of the red cube",
+        }
+
+        return element
+
+    def get_features(self):
+        raise NotImplementedError("Pi0StateEncoder does not support get_features")

@@ -20,26 +20,26 @@ import positronic.cfg.hardware.gripper
 import positronic.cfg.hardware.camera
 import positronic.cfg.simulator
 import positronic.cfg.inference.state
+import positronic.cfg.inference.action
+import positronic.cfg.inference.policy
 
 
 def rerun_log_observation(ts, obs):
     rr.set_time('time', duration=ts)
 
     def log_image(name, tensor, compress: bool = True):
-        tensor = tensor.squeeze(0)
-        tensor = (tensor * 255).type(torch.uint8)
-        tensor = tensor.permute(1, 2, 0).cpu().numpy()
+        # tensor = tensor.squeeze(0)
+        # tensor = (tensor * 255).type(torch.uint8)
+        # tensor = tensor.permute(1, 2, 0).cpu().numpy()
         rr_img = rr.Image(tensor)
         if compress:
             rr_img = rr_img.compress()
         rr.log(name, rr_img)
 
-    for k, v in obs.items():
-        if k.startswith("observation.images."):
-            log_image(k, v)
+    log_image("observation/image", obs["observation/image"])
+    log_image("observation/wrist_image", obs["observation/wrist_image"])
 
-    for i, state in enumerate(obs['observation.state'].squeeze(0)):
-        rr.log(f"observation/state/{i}", rr.Scalar(state.item()))
+    rr.log(f"observation/state", rr.Scalars(obs['observation/state']))
 
 
 def rerun_log_action(ts, action):
@@ -112,6 +112,7 @@ class Inference:
 
             if reference_pose is None:
                 reference_pose = robot_state.ee_pose.copy()
+                reference_q = robot_state.q.copy()
 
             inputs = {
                 'robot_position_translation': robot_state.ee_pose.translation,
@@ -122,21 +123,22 @@ class Inference:
                 'reference_robot_position_quaternion': reference_pose.rotation.as_quat
             }
             obs = self.state_encoder.encode(images, inputs)
-            for key in obs:
-                obs[key] = obs[key].to(self.device)
+            # for key in obs:
+            #     obs[key] = obs[key].to(self.device)
 
             action = self.policy.select_action(obs).squeeze(0).cpu().numpy()
-            action_dict = self.action_decoder.decode(action, inputs)
-            target_pos = action_dict['target_robot_position']
-
-            roboarm_command = roboarm.command.CartesianMove(pose=target_pos)
+            # action_dict = self.action_decoder.decode(action, inputs)
+            # target_pos = action_dict['target_robot_position']
+            joint_pos = action[:7]
+            grip = action[7]
+            roboarm_command = roboarm.command.JointMove(positions=joint_pos + reference_q)
 
             # TODO: this should be inside the policy
             if self.policy.chunk_start():
-                reference_pose = target_pos
+                reference_q = joint_pos.copy()
 
             self.robot_commands.emit(roboarm_command)
-            self.target_grip.emit(action_dict['target_grip'].item())
+            self.target_grip.emit(grip)
 
             if self.rerun_path:
                 rerun_log_observation(clock.now(), obs)
@@ -190,8 +192,8 @@ def main_sim(
     sim = MujocoSim(mujoco_model_path, loaders)
     robot_arm = MujocoFranka(sim, suffix='_ph')
     cameras = {
-        'image.back': MujocoCamera(sim.model, sim.data, 'handcam_back_ph', (1280, 720), fps=fps),
-        'image.front': MujocoCamera(sim.model, sim.data, 'handcam_front_ph', (1280, 720), fps=fps),
+        'handcam_left': MujocoCamera(sim.model, sim.data, 'handcam_left_ph', (1280, 720), fps=fps),
+        'back_view': MujocoCamera(sim.model, sim.data, 'back_view_ph', (1280, 720), fps=fps),
     }
     gripper = MujocoGripper(sim, actuator_name='actuator8_ph', joint_name='finger_joint1_ph')
     inference = Inference(state_encoder, action_decoder, device, policy, rerun_path)
@@ -243,11 +245,11 @@ main_sim_cfg = cfn.Config(
     main_sim,
     mujoco_model_path="positronic/assets/mujoco/franka_table.xml",
     loaders=positronic.cfg.simulator.stack_cubes_loaders,
-    state_encoder=positronic.cfg.inference.state.end_effector_back_front,
+    state_encoder=positronic.cfg.inference.state.pi0_state_encoder,
     action_decoder=positronic.cfg.inference.action.relative_robot_position,
-    policy=positronic.cfg.inference.policy.act,
+    policy=positronic.cfg.inference.policy.pi0,
     rerun_path="inference.rrd",
-    fps=60,
+    fps=15,
     device='cuda',
     simulation_time=10,
 )

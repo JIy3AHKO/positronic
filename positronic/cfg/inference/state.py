@@ -2,7 +2,7 @@ import configuronic as cfn
 from positronic.inference.state import ImageEncodingConfig, StateEncoder
 
 
-@cfn.config
+@cfn.config()
 def end_effector(resolution: tuple[int, int]):
     return StateEncoder(
         state_output_key='observation.state',
@@ -83,3 +83,9 @@ end_effector_mem15 = cfn.Config(
         'grip',  # fake grip
     ]
 )
+
+
+@cfn.config()
+def pi0_state_encoder():
+    from positronic.inference.state import Pi0StateEncoder
+    return Pi0StateEncoder()
