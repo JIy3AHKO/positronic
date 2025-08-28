@@ -131,7 +131,7 @@ class Inference:
             # target_pos = action_dict['target_robot_position']
             joint_pos = action[:7]
             grip = action[7]
-            roboarm_command = roboarm.command.JointMove(positions=joint_pos + reference_q)
+            roboarm_command = roboarm.command.JointMove(positions=joint_pos)
 
             # TODO: this should be inside the policy
             if self.policy.chunk_start():

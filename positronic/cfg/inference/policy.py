@@ -21,13 +21,11 @@ def _get_diffusion_policy(checkpoint_path: str):
     policy = DiffusionPolicy.from_pretrained(checkpoint_path, local_files_only=True, strict=True)
     return policy
 
-
-def _get_pi0_policy():
+@cfn.config(n_action_steps=4)
+def pi0(n_action_steps: int | None = None):
     from positronic.inference.policy.pi0 import PI0RemotePolicy
-    return PI0RemotePolicy("localhost", 8000)
+    return PI0RemotePolicy("localhost", 8000, n_action_steps)
 
 
 act = cfn.Config(_get_act_policy, use_temporal_ensembler=False)
 diffusion = cfn.Config(_get_diffusion_policy)
-pi0_lerobot = cfn.Config(_get_pi0_policy)
-pi0 = cfn.Config(_get_pi0_policy)
