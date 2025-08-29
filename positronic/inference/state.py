@@ -2,6 +2,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 
@@ -122,7 +123,7 @@ class Pi0StateEncoder(StateEncoder):
         element = {
             "observation/image": back_img,
             "observation/wrist_image": wrist_img,
-            "observation/state": inputs["robot_joints"],
+            "observation/state": np.concatenate([inputs["robot_joints"], np.array([inputs["grip"]])]),
             "prompt": "pick up the green cube and put in on top of the red cube",
         }
 

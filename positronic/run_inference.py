@@ -196,7 +196,7 @@ def main_sim(
         'back_view': MujocoCamera(sim.model, sim.data, 'back_view_ph', (1280, 720), fps=fps),
     }
     gripper = MujocoGripper(sim, actuator_name='actuator8_ph', joint_name='finger_joint1_ph')
-    inference = Inference(state_encoder, action_decoder, device, policy, rerun_path)
+    inference = Inference(state_encoder, action_decoder, device, policy, rerun_path, inference_fps=15)
 
     with pimm.World(clock=sim) as world:
         cameras = cameras or {}
@@ -249,7 +249,7 @@ main_sim_cfg = cfn.Config(
     action_decoder=positronic.cfg.inference.action.relative_robot_position,
     policy=positronic.cfg.inference.policy.pi0,
     rerun_path="inference.rrd",
-    fps=15,
+    fps=60,
     device='cuda',
     simulation_time=10,
 )
