@@ -14,6 +14,7 @@ from positronic.simulator.mujoco.sim import MujocoCamera, MujocoFranka, MujocoGr
 from positronic.inference.action import ActionDecoder
 from positronic.inference.state import StateEncoder
 from positronic.simulator.mujoco.transforms import MujocoSceneTransform
+from positronic import geom
 
 import positronic.cfg.hardware.roboarm
 import positronic.cfg.hardware.gripper
@@ -129,13 +130,16 @@ class Inference:
             action = self.policy.select_action(obs).squeeze(0).cpu().numpy()
             # action_dict = self.action_decoder.decode(action, inputs)
             # target_pos = action_dict['target_robot_position']
-            joint_pos = action[:7]
+            rotation = geom.Rotation.from_quat(action[:4])
+            translation = action[4:7]
+            target_pose = geom.Transform3D(translation=translation, rotation=rotation)
             grip = action[7]
-            roboarm_command = roboarm.command.JointMove(positions=joint_pos)
+            roboarm_command = roboarm.command.CartesianMove(pose=target_pose)
 
             # TODO: this should be inside the policy
             if self.policy.chunk_start():
-                reference_q = joint_pos.copy()
+                #reference_q = joint_pos.copy()
+                pass
 
             self.robot_commands.emit(roboarm_command)
             self.target_grip.emit(grip)

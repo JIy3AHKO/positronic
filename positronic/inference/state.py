@@ -123,7 +123,8 @@ class Pi0StateEncoder(StateEncoder):
         element = {
             "observation/image": back_img,
             "observation/wrist_image": wrist_img,
-            "observation/state": np.concatenate([inputs["robot_joints"], np.array([inputs["grip"]])]),
+            "observation/state": np.concatenate([
+                inputs["robot_position_rotation"], inputs["robot_position_translation"], np.array([inputs["grip"]])]),
             "prompt": "pick up the green cube and put in on top of the red cube",
         }
 
