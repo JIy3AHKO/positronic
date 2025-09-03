@@ -188,6 +188,7 @@ class MujocoFranka:
             target_quat=target_robot_position.rotation.as_quat,
             joint_names=self.joint_names,
             rot_weight=0.5,
+            regularization_strength=0.0
         )
 
         if result.success:
