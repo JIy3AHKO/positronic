@@ -15,7 +15,7 @@
       <default class="panda_ph">
         <material shininess="0.25"/>
         <joint range="-2.8973 2.8973" armature="0.1" damping="1"/>
-        <!-- <general ctrlrange="-2.8973 2.8973" forcerange="-100 100" biastype="affine" biasprm="0 -1"/> -->
+        <general ctrlrange="-2.8973 2.8973" forcerange="-100 100" biastype="affine" biasprm="0 -1"/>
         <default class="finger_ph">
           <joint type="slide" range="0 0.04"/>
         </default>
@@ -312,20 +312,13 @@
   </equality>
 
   <actuator>
-    <!-- <general name="actuator1_ph" class="panda_ph" joint="joint1_ph" gainprm="1000" biasprm="0 -1000 -20"/>
+    <general name="actuator1_ph" class="panda_ph" joint="joint1_ph" gainprm="1000" biasprm="0 -1000 -20"/>
     <general name="actuator2_ph" class="panda_ph" joint="joint2_ph" ctrlrange="-1.7628 1.7628" gainprm="1000" biasprm="0 -1000 -20"/>
     <general name="actuator3_ph" class="panda_ph" joint="joint3_ph" gainprm="750" biasprm="0 -750 -4"/>
     <general name="actuator4_ph" class="panda_ph" joint="joint4_ph" ctrlrange="-3.0718 -0.0698" gainprm="750" biasprm="0 -750 -4"/>
     <general name="actuator5_ph" class="panda_ph" joint="joint5_ph" forcerange="-12 12" gainprm="300" biasprm="0 -300 -2"/>
     <general name="actuator6_ph" class="panda_ph" joint="joint6_ph" ctrlrange="-0.0175 3.7525" forcerange="-12 12" gainprm="300" biasprm="0 -300 -2"/>
-    <general name="actuator7_ph" class="panda_ph" joint="joint7_ph" forcerange="-12 12" gainprm="300" biasprm="0 -300 -2"/> -->
-    <position name="actuator1_ph" class="panda_ph" joint="joint1_ph" kp="2500" ctrlrange="-2.8973 2.8973"/>
-    <position name="actuator2_ph" class="panda_ph" joint="joint2_ph" kp="2500" ctrlrange="-1.7628 1.7628"/>
-    <position name="actuator3_ph" class="panda_ph" joint="joint3_ph" kp="2500" ctrlrange="-2.8973 2.8973"/>
-    <position name="actuator4_ph" class="panda_ph" joint="joint4_ph" kp="2500" ctrlrange="-3.0718 -0.0698"/>
-    <position name="actuator5_ph" class="panda_ph" joint="joint5_ph" kp="2500" ctrlrange="-2.8973 2.8973"/>
-    <position name="actuator6_ph" class="panda_ph" joint="joint6_ph" kp="2500" ctrlrange="-0.0175 3.7525"/>
-    <position name="actuator7_ph" class="panda_ph" joint="joint7_ph" kp="2500" ctrlrange="-2.8973 2.8973"/>
+    <general name="actuator7_ph" class="panda_ph" joint="joint7_ph" forcerange="-12 12" gainprm="300" biasprm="0 -300 -2"/>
     <general name="actuator8_ph" class="panda_ph" joint="finger_joint1_ph" ctrlrange="0 0.04" forcerange="-200 200" biastype="affine" gainprm="350" biasprm="0 -350 -10"/>
   </actuator>
 
